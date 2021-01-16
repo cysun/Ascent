@@ -1,5 +1,8 @@
-﻿using Ascent.Services;
+﻿using Ascent.Security;
+using Ascent.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -13,6 +16,7 @@ using Microsoft.IdentityModel.Logging;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -60,7 +64,6 @@ namespace Ascent
                 options.Scope.Add("email");
                 options.Scope.Add("ascent_claims");
                 options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
 
                 options.Events = new OpenIdConnectEvents
                 {
@@ -78,9 +81,24 @@ namespace Ascent
                 }
             });
 
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Policy.IsAdmin, policyBuilder => policyBuilder
+                    .RequireClaim(ClaimType.Admin, "true"));
+                options.AddPolicy(Policy.CanReadDepartmentResources, policyBuilder => policyBuilder
+                    .AddRequirements(new CanAccessDepartmentResourcesRequirement(ClaimType.DepartmentRead)));
+                options.AddPolicy(Policy.CanWriteDepartmentResources, policyBuilder => policyBuilder
+                    .AddRequirements(new CanAccessDepartmentResourcesRequirement(ClaimType.DepartmentRead)));
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
+            services.AddHttpContextAccessor();
+            services.AddScoped<IAuthorizationHandler, CanAccessDepartmentResourcesHandler>();
 
             services.AddRouting(options => options.LowercaseUrls = true);
+
+            services.AddScoped<DepartmentService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -109,6 +127,9 @@ namespace Ascent
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                    name: "resource",
+                    pattern: "department/{dept}/{controller=Programs}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -1,8 +1,19 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 rounded-lg my-3">
+    <h1 class="display-4">Welcome to Ascent!</h1>
+    <p class="lead">
+        Ascent, or <em>Assessment Center</em>, is the one-stop shop for all your program assessment needs. To proceed,
+        please select your department:
+    </p>
+    <div class="row">
+        <div class="col-9 col-md-6">
+            <select asp-items="ViewBag.Departments" class="form-select"></select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">Go</button>
+        </div>
+    </div>
 </div>

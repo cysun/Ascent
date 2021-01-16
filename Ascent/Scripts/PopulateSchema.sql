@@ -1,0 +1,1 @@
+﻿INSERT INTO "Departments" ("Name", "Abbreviation") VALUES ('Department of Computer Science', 'cs');
