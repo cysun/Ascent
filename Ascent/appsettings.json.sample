@@ -13,7 +13,7 @@
   },
   "Files": {
     "Directory": "D:/Temp/Ascent/files",
-    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx" ],
+    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".zip" ],
     "TextTypes": [ ".java", ".sql" ]
   },
   "Serilog": {
